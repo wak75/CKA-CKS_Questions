@@ -1,0 +1,26 @@
+# Creating the role for granting a developer a read access to pods in STG namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: dev-read-role
+  namespace: stg
+rules:
+  - apiGroups: [""]
+    resources: ["pods","pods/log"]
+    verbs: ["get","list","watch"]
+
+---
+# RoleBinding to user Sunita
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding 
+metadata:
+  name: dev-read-rolebinding
+  namespace: stg
+subjects:
+  - kind: User
+    name: Sunita
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: dev-read-role
+  apiGroup: rbac.authorization.k8s.io

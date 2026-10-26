@@ -1,0 +1,58 @@
+# You have been asked to create a new ClusterRole for a deployment pipeline and bind it to a specific ServiceAccount scoped to a specific namespace.
+# Task
+# Create a new ClusterRole named deployment-clusterrole, which only allows to create the following resource types:
+# ✑ Deployment
+# ✑ Stateful Set
+# ✑ DaemonSet
+# Create a new ServiceAccount named cicd-token in the existing namespace app-team1.
+# Bind the new ClusterRole deployment-clusterrole to the new ServiceAccount cicd-token, limited to the namespace app-team1.
+# 
+---
+# Creating the ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: deployment-clusterrole
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets"]
+    verbs: ["create"]
+
+---
+
+#Creating the service ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cicd-token
+  namespace: app-team1
+
+---
+#Rolebinding to the service ServiceAccount
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: service-account-rolebinding
+  namespace: app-team1
+subjects:
+  - kind: ServiceAccount
+    name: cicd-token
+    namespace: app-team1
+roleRef:
+  kind: ClusterRole
+  name: deployment-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+
+
+----
+
+### imperative approach
+
+#creating the clusterrole
+kubectl create clusterrole deployment-clusterrole --verb=create --resource=Deployment,StatefulSet,DaemonSet
+
+#creating the Service account
+kubectl create sa cicd-token -n=app-team1
+
+#rolebinding
+kubectl create culsterrolebinding therolebinding --clusterrole=deployment-clusterrole --serviceaccount=cicd-token
